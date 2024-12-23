@@ -19,6 +19,8 @@ public class RideDto {
 
     private DriverDto driver;
 
+    private String otp;
+
     private PaymentMethod paymentMethod;
 
     private RideStatus rideRequestStatus;
