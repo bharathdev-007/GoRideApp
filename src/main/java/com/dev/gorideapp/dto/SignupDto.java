@@ -1,16 +1,16 @@
 package com.dev.gorideapp.dto;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Getter
+@Setter
 public class SignupDto {
 
-    private String name;
+    private String username;
     private String email;
     private String password;
 
