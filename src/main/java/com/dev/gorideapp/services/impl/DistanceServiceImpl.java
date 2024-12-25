@@ -9,6 +9,7 @@ public class DistanceServiceImpl implements DistanceService {
 
     @Override
     public double calculateDistance(Point src, Point dst) {
+    //TODO  Call the third party api called OSRM to fetch the distance
         return 0;
     }
 }
