@@ -30,7 +30,7 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
-    public RideDto acceptRide(Long rideId, Integer rating) {
+    public RideDto acceptRide(Long rideId) {
         return null;
     }
 
