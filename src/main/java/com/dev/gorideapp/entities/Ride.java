@@ -3,6 +3,7 @@ package com.dev.gorideapp.entities;
 import com.dev.gorideapp.entities.enums.PaymentMethod;
 import com.dev.gorideapp.entities.enums.RideStatus;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -11,12 +12,11 @@ import org.locationtech.jts.geom.Point;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
+@Data
 public class Ride {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(columnDefinition = "Geometry(Point, 4326)")
     private Point pickupLocation;
@@ -36,10 +36,11 @@ public class Ride {
     private PaymentMethod paymentMethod;
 
     @Enumerated(EnumType.STRING)
-    private RideStatus rideRequestStatus;
+    private RideStatus rideStatus;
+    private String otp;
 
     private Double fare;
-    private LocalDateTime startTime;
+    private LocalDateTime startedAt;
     private LocalDateTime endTime;
 
 

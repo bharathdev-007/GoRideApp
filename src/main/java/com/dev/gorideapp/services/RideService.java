@@ -3,6 +3,8 @@ package com.dev.gorideapp.services;
 import com.dev.gorideapp.dto.RideRequestDto;
 import com.dev.gorideapp.entities.Driver;
 import com.dev.gorideapp.entities.Ride;
+import com.dev.gorideapp.entities.RideRequest;
+import com.dev.gorideapp.entities.Rider;
 import com.dev.gorideapp.entities.enums.RideStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,13 +13,13 @@ public interface RideService {
 
     Ride getRideById(Long id);
     void matchWithDrivers(RideRequestDto rideRequestDto);
-    Ride creatwNewRide(RideRequestDto rideRequestDto, Driver driver);
+    Ride createNewRide(RideRequest rideRequest, Driver driver);
 
-    Ride updateRideStatus(Long rideId,RideStatus status);
+    Ride updateRideStatus(Ride ride,RideStatus status);
 
-    Page<Ride> getAllRidesOfRider(Long riderId, PageRequest pageRequest);
+    Page<Ride> getAllRidesOfRider(Rider rider, PageRequest pageRequest);
 
-    Page<Ride> getAllRidesOfDriveer(Long driverId, PageRequest pageRequest);
+    Page<Ride> getAllRidesOfDriver(Driver driver, PageRequest pageRequest);
 
 
 }
