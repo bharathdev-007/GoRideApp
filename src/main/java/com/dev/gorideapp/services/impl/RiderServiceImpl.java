@@ -4,20 +4,21 @@ import com.dev.gorideapp.dto.DriverDto;
 import com.dev.gorideapp.dto.RideDto;
 import com.dev.gorideapp.dto.RideRequestDto;
 import com.dev.gorideapp.dto.RiderDto;
-import com.dev.gorideapp.entities.RideRequest;
-import com.dev.gorideapp.entities.Rider;
-import com.dev.gorideapp.entities.User;
+import com.dev.gorideapp.entities.*;
 import com.dev.gorideapp.entities.enums.RideRequestStatus;
+import com.dev.gorideapp.entities.enums.RideStatus;
+import com.dev.gorideapp.exceptions.ResourceNotFoundException;
 import com.dev.gorideapp.repositories.RideRequestRepository;
 import com.dev.gorideapp.repositories.RiderRepository;
+import com.dev.gorideapp.services.DriverService;
+import com.dev.gorideapp.services.RideService;
 import com.dev.gorideapp.services.RiderService;
-import com.dev.gorideapp.stratagies.DriverMatchingStrategy;
-import com.dev.gorideapp.stratagies.RideFareCalculationStrategy;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.dev.gorideapp.stratagies.impl.RideStrategyManager;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,30 +26,50 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class RiderServiceImpl implements RiderService {
-
     private final ModelMapper modelMapper;
-    private final RideFareCalculationStrategy rideFareCalculationStrategy;
-    private final DriverMatchingStrategy driverMatchingStrategy;
+    private final RideStrategyManager rideStrategyManager;
     private final RideRequestRepository rideRequestRepository;
     private final RiderRepository riderRepository;
+    private final RideService rideService;
+    private final DriverService driverService;
     @Override
+    @Transactional
     public RideRequestDto requestRide(RideRequestDto rideRequestDto) {
+        Rider rider = getCurrentRider();
         RideRequest rideRequest = modelMapper.map(rideRequestDto, RideRequest.class);
         rideRequest.setRideRequestStatus(RideRequestStatus.PENDING);
+        rideRequest.setRider(rider);
 
-        Double fare = rideFareCalculationStrategy.calculateFare(rideRequest);
+        Double fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
         rideRequest.setFare(fare);
 
         RideRequest savedRideRequest = rideRequestRepository.save(rideRequest);
 
-        driverMatchingStrategy.findMatchingDrivers(rideRequest);
+        List<Driver> drivers = rideStrategyManager
+                .driverMatchingStrategy(rider.getRating()).findMatchingDrivers(rideRequest);
+
+//        TODO : Send notification to all the drivers about this ride request
 
         return modelMapper.map(savedRideRequest, RideRequestDto.class);
     }
 
     @Override
     public RideDto cancelRide(Long rideId) {
-        return null;
+        Rider rider = getCurrentRider();
+        Ride ride = rideService.getRideById(rideId);
+
+        if(!rider.equals(ride.getRider())) {
+            throw new RuntimeException(("Rider does not own this ride with id: "+rideId));
+        }
+
+        if(!ride.getRideStatus().equals(RideStatus.CONFIRMED)) {
+            throw new RuntimeException("Ride cannot be cancelled, invalid status: "+ride.getRideStatus());
+        }
+
+        Ride savedRide = rideService.updateRideStatus(ride, RideStatus.CANCELLED);
+        driverService.updateDriverAvailability(ride.getDriver(), true);
+
+        return modelMapper.map(savedRide, RideDto.class);
     }
 
     @Override
@@ -58,12 +79,16 @@ public class RiderServiceImpl implements RiderService {
 
     @Override
     public RiderDto getMyProfile() {
-        return null;
+        Rider currentRider = getCurrentRider();
+        return modelMapper.map(currentRider, RiderDto.class);
     }
 
     @Override
-    public List<RideDto> getMyRides() {
-        return null;
+    public Page<RideDto> getAllMyRides(PageRequest pageRequest) {
+        Rider currentRider = getCurrentRider();
+        return rideService.getAllRidesOfRider(currentRider, pageRequest).map(
+                ride -> modelMapper.map(ride, RideDto.class)
+        );
     }
 
     @Override
@@ -74,5 +99,12 @@ public class RiderServiceImpl implements RiderService {
                  rating(0.0).
                  build();
          return riderRepository.save(rider);
+    }
+    @Override
+    public Rider getCurrentRider() {
+//        TODO : implement Spring security
+        return riderRepository.findById(1L).orElseThrow(() -> new ResourceNotFoundException(
+                "Rider not found with id: "+1
+        ));
     }
 }

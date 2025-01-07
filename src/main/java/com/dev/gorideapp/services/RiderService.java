@@ -6,6 +6,8 @@ import com.dev.gorideapp.dto.RideRequestDto;
 import com.dev.gorideapp.dto.RiderDto;
 import com.dev.gorideapp.entities.Rider;
 import com.dev.gorideapp.entities.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
@@ -14,6 +16,10 @@ public interface RiderService {
     RideDto cancelRide(Long rideId);
     DriverDto rateDriver(Long rideId);
     RiderDto getMyProfile();
-    List<RideDto> getMyRides();
+
+    Page<RideDto> getAllMyRides(PageRequest pageRequest);
+
     Rider createNewRider(User user);
+
+    Rider getCurrentRider();
 }
