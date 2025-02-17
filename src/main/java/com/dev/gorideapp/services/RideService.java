@@ -11,11 +11,11 @@ import org.springframework.data.domain.PageRequest;
 
 public interface RideService {
 
-    Ride getRideById(Long id);
-    void matchWithDrivers(RideRequestDto rideRequestDto);
+    Ride getRideById(Long rideId);
+
     Ride createNewRide(RideRequest rideRequest, Driver driver);
 
-    Ride updateRideStatus(Ride ride,RideStatus status);
+    Ride updateRideStatus(Ride ride, RideStatus rideStatus);
 
     Page<Ride> getAllRidesOfRider(Rider rider, PageRequest pageRequest);
 

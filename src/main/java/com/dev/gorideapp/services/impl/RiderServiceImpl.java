@@ -11,6 +11,7 @@ import com.dev.gorideapp.exceptions.ResourceNotFoundException;
 import com.dev.gorideapp.repositories.RideRequestRepository;
 import com.dev.gorideapp.repositories.RiderRepository;
 import com.dev.gorideapp.services.DriverService;
+import com.dev.gorideapp.services.RatingService;
 import com.dev.gorideapp.services.RideService;
 import com.dev.gorideapp.services.RiderService;
 import com.dev.gorideapp.stratagies.impl.RideStrategyManager;
@@ -32,6 +33,8 @@ public class RiderServiceImpl implements RiderService {
     private final RiderRepository riderRepository;
     private final RideService rideService;
     private final DriverService driverService;
+    private final RatingService ratingService;
+
     @Override
     @Transactional
     public RideRequestDto requestRide(RideRequestDto rideRequestDto) {
@@ -73,8 +76,20 @@ public class RiderServiceImpl implements RiderService {
     }
 
     @Override
-    public DriverDto rateDriver(Long rideId) {
-        return null;
+    public DriverDto rateDriver(Long rideId, Integer rating) {
+
+        Ride ride = rideService.getRideById(rideId);
+        Rider rider = getCurrentRider();
+
+        if(!rider.equals(ride.getRider())) {
+            throw new RuntimeException("Rider is not the owner of this Ride");
+        }
+
+        if(!ride.getRideStatus().equals(RideStatus.ENDED)) {
+            throw new RuntimeException("Ride status is not Ended hence cannot start rating, status: "+ride.getRideStatus());
+        }
+
+        return ratingService.rateDriver(ride, rating);
     }
 
     @Override
