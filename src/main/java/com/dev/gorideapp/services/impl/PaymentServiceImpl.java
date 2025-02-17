@@ -6,6 +6,7 @@ import com.dev.gorideapp.entities.enums.PaymentStatus;
 import com.dev.gorideapp.exceptions.ResourceNotFoundException;
 import com.dev.gorideapp.repositories.PaymentRepository;
 import com.dev.gorideapp.services.PaymentService;
+import com.dev.gorideapp.stratagies.PaymentStrategyManger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,13 +15,13 @@ import org.springframework.stereotype.Service;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
-//    private final PaymentStrategyManager paymentStrategyManager;
+    private final PaymentStrategyManger paymentStrategyManager;
 
     @Override
     public void processPayment(Ride ride) {
         Payment payment = paymentRepository.findByRide(ride)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found for ride with id: "+ride.getId()));
-//        paymentStrategyManager.paymentStrategy(payment.getPaymentMethod()).processPayment(payment);
+        paymentStrategyManager.paymentStrategy(payment.getPaymentMethod()).processPayment(payment);
     }
 
     @Override
