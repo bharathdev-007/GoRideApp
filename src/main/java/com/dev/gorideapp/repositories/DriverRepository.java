@@ -1,12 +1,14 @@
 package com.dev.gorideapp.repositories;
 
 import com.dev.gorideapp.entities.Driver;
+import com.dev.gorideapp.entities.User;
 import org.locationtech.jts.geom.Point;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DriverRepository extends JpaRepository<Driver,Long> {
@@ -21,4 +23,7 @@ public interface DriverRepository extends JpaRepository<Driver,Long> {
             "ORDER BY d.rating DESC " +
             "LIMIT 10", nativeQuery = true)
     List<Driver> findTenNearbyTopRatedDrivers(Point pickupLocation);
+
+    Optional<Driver> findByUser(User user);
+
 }

@@ -5,8 +5,11 @@ import com.dev.gorideapp.dto.SignupDto;
 import com.dev.gorideapp.dto.UserDto;
 
 public interface AuthService {
-    String login(String email, String password);
+    String[] login(String email, String password);
+
     UserDto signup(SignupDto signupDto);
 
-    DriverDto onBoardNewDriver(Long userId, String vehicleId);
+    DriverDto onboardNewDriver(Long userId, String vehicleId);
+
+    String refreshToken(String refreshToken);
 }

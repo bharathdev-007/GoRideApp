@@ -1,29 +1,34 @@
 package com.dev.gorideapp.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.locationtech.jts.geom.Point;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(indexes = {
+        @Index(name = "idx_driver_vehicle_id", columnList = "vehicleId")
+})
 public class Driver {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
+
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
     private Double rating;
 
     private Boolean available;
+
     private String vehicleId;
 
     @Column(columnDefinition = "Geometry(Point, 4326)")
-    Point currentLocation;
+    private Point currentLocation;
 }
